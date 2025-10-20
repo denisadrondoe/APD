@@ -7,22 +7,33 @@ int P;
 int **a;
 int **b;
 int **c;
+pthread_mutex_t lock;
 
 // TODO: paralelizati operatia din comentariul din functie
 // in interiorul functiei respective
 void *thread_function(void *arg)
 {
 	int thread_id = *(int *)arg;
-
-	/*
+	int start = thread_id * (N / P);
+	int end = (thread_id +1) * (N/P);
+	if(thread_id == P-1) {
+		end = N;// Ultimul thread preia și restul dacă N nu e divizibil exact cu P
+	}
+	int i, j, k;
+	
 	for (i = 0; i < N; i++) {
 		for (j = 0; j < N; j++) {
-			for (k = 0; k < N; k++) {
-				c[i][j] += a[i][k] * b[k][j];
+			int partial_sum = 0;
+			//fiecare thread calculeaza o parte din suma local
+			for (k = start; k < end; k++) {
+				partial_sum += a[i][k] * b[k][j];
 			}
+			//intram in sectiunea critica pentru a actualiza c[i][j]
+			pthread_mutex_lock(&lock);
+			c[i][j] += partial_sum;
+			pthread_mutex_unlock(&lock);
 		}
 	}
-	*/
 
 	pthread_exit(NULL);
 }
@@ -94,6 +105,7 @@ int main(int argc, char *argv[])
 
 	get_args(argc, argv);
 	init();
+	pthread_mutex_init(&lock, NULL); //initializam mutex ul
 
 	pthread_t tid[P];
 	int thread_id[P];
@@ -106,7 +118,7 @@ int main(int argc, char *argv[])
 	for (i = 0; i < P; i++) {
 		pthread_join(tid[i], NULL);
 	}
-
+	pthread_mutex_destroy(&lock); //distrugem mutex ul
 	print(c);
 
 	return 0;
