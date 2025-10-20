@@ -2,20 +2,27 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#define NUM_THREADS 2
+#define NUM_THREADS 3
 
-
+pthread_barrier_t barrier;
 // TODO: de folosit bariera in aceasta functie
 void *f(void *arg)
 {
 	int thread_id = *(int *)arg;
 
+	
 	if (thread_id == 1) {
 		printf("1\n");
 	}
-
+	if (thread_id == 2) {
+		printf("0\n");
+	}
+	pthread_barrier_wait(&barrier);
 	if (thread_id == 0) {
 		printf("2\n");
+	}
+	if(thread_id == 1) {
+		printf("3\n");
 	}
 
 	pthread_exit(NULL);
@@ -27,6 +34,7 @@ int main(int argc, char **argv)
 	void *status;
 	pthread_t threads[NUM_THREADS];
 	int arguments[NUM_THREADS];
+	pthread_barrier_init(&barrier, NULL, NUM_THREADS);
 
 	for (i = 0; i < NUM_THREADS; i++) {
 		arguments[i] = i;
@@ -46,6 +54,7 @@ int main(int argc, char **argv)
 			exit(-1);
 		}
 	}
+	pthread_barrier_destroy(&barrier);
 
 	return 0;
 }

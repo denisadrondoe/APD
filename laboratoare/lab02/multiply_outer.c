@@ -2,27 +2,34 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-int N;
-int P;
+int N; //dimensiunea matricelor 
+int P; //numarul de thread uri
 int **a;
 int **b;
 int **c;
+// NUM_THREADS N;
 
 // TODO: paralelizati operatia din comentariul din functie
 // in interiorul functiei respective
 void *thread_function(void *arg)
 {
 	int thread_id = *(int *)arg;
-
-	/*
-	for (i = 0; i < N; i++) {
+	//schimbam start si end pt a imparti munca intre threaduri
+	int start = thread_id * (N / P);
+	int end = (thread_id + 1) * (N / P);
+	// Ultimul thread preia și restul dacă N nu e divizibil exact cu P
+	if (thread_id == P - 1) {
+		end = N;
+	}
+	int i, j, k;
+	for (i = start; i < end; i++) {
 		for (j = 0; j < N; j++) {
+			c[i][j] = 0; //resetam elementul
 			for (k = 0; k < N; k++) {
 				c[i][j] += a[i][k] * b[k][j];
 			}
 		}
 	}
-	*/
 
 	pthread_exit(NULL);
 }
