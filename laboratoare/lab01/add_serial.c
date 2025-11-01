@@ -19,9 +19,12 @@ int main(int argc, char *argv[]) {
   array_size = atoi(argv[1]);
 
   arr = malloc(array_size * sizeof(int));
-  for (int i = 0; i < array_size; i++) {
-    arr[i] = i;
-  }
+  
+
+    for (int i = 0; i < array_size; i++) {
+      arr[i] = i;
+    }
+
 
   clock_t start = clock();
 
