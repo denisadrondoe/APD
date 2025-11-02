@@ -1,0 +1,12 @@
+am rulat implementarea mea cu  pentru n = 160
+1  real 0.120 s
+2 real 0.131 s
+3 real 0.104 s
+4 real 0.141 s
+
+timpul pentru secvential este 0.065 s
+speedup = timp_secvential/ timp_paralel = 0.065/0.120 =0.541
+speedup < 1 înseamnă că versiunea paralelă este mai lentă decât cea secvențială
+ (de obicei din cauza overhead-ului de creare a thread-urilor și a sincronizării).
+
+eficienta = S/P (P = nr de thread uri )  = 0.541 / 1 = 0.541 (pentru un thread)
