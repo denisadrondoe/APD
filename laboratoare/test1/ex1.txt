@@ -6,7 +6,8 @@ am rulat implementarea mea cu  pentru n = 160
 
 timpul pentru secvential este 0.065 s
 speedup = timp_secvential/ timp_paralel = 0.065/0.120 =0.541
-speedup < 1 înseamnă că versiunea paralelă este mai lentă decât cea secvențială
+speedup < 1 înseamnă că versiunea paralelă este mai lentă decât cea secvențială =>
+NU ESTE SCALABIL 
  (de obicei din cauza overhead-ului de creare a thread-urilor și a sincronizării).
 
 eficienta = S/P (P = nr de thread uri )  = 0.541 / 1 = 0.541 (pentru un thread)

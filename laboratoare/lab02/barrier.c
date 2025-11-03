@@ -17,7 +17,7 @@ void *f(void *arg)
 	if (thread_id == 2) {
 		printf("0\n");
 	}
-	pthread_barrier_wait(&barrier);
+	//pthread_barrier_wait(&barrier);
 	if (thread_id == 0) {
 		printf("2\n");
 	}

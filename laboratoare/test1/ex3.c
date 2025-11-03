@@ -183,43 +183,43 @@ void *f(void *arg)
                 mul_matrix(M1, 0, 0, AUXM11, 0, 0, AUXM12, 0, 0);
                 break;
 
-	// calculul matricii M2
-    case 1:
-	add_matrix(AUXM21, 0,0, a, N/2, 0, a, N/2, N/2);
-	mul_matrix(M2, 0, 0, AUXM21, 0, 0, b, 0, 0);
-    break;
+            // calculul matricii M2
+            case 1:
+                add_matrix(AUXM21, 0,0, a, N/2, 0, a, N/2, N/2);
+                mul_matrix(M2, 0, 0, AUXM21, 0, 0, b, 0, 0);
+                break;
 
-	// calculul matricii M3
-    case 2:
-	sub_matrix(AUXM31, 0, 0, b, 0, N/2, b, N/2, N/2);
-	mul_matrix(M3, 0, 0, a, 0, 0, AUXM31, 0, 0);
-    break;
+            // calculul matricii M3
+            case 2:
+                sub_matrix(AUXM31, 0, 0, b, 0, N/2, b, N/2, N/2);
+                mul_matrix(M3, 0, 0, a, 0, 0, AUXM31, 0, 0);
+                break;
 
-	// calculul matricii M4
-    case 3:
-	sub_matrix(AUXM41, 0, 0, b, N/2, 0, b, 0, 0);
-	mul_matrix(M4, 0, 0, a, N/2, N/2, AUXM41, 0, 0);
-    break;
+            // calculul matricii M4
+            case 3:
+                sub_matrix(AUXM41, 0, 0, b, N/2, 0, b, 0, 0);
+                mul_matrix(M4, 0, 0, a, N/2, N/2, AUXM41, 0, 0);
+                break;
 
-	// calculul matricii M5
-    case 4:
-	add_matrix(AUXM51, 0,0, a, 0, 0, a, 0, N/2);
-	mul_matrix(M5, 0, 0, AUXM51, 0, 0, b, N/2, N/2);
-    break;
+            // calculul matricii M5
+            case 4:
+                add_matrix(AUXM51, 0,0, a, 0, 0, a, 0, N/2);
+                mul_matrix(M5, 0, 0, AUXM51, 0, 0, b, N/2, N/2);
+                break;
 
-	// calculul matricii M6
-    case 5:
-	sub_matrix(AUXM61, 0, 0, a, N/2, 0, a, 0, 0);
-	add_matrix(AUXM62, 0, 0, b, 0, 0, b, 0, N/2);
-	mul_matrix(M6, 0, 0, AUXM61, 0, 0, AUXM62, 0, 0);
-    break;
+            // calculul matricii M6
+            case 5:
+                sub_matrix(AUXM61, 0, 0, a, N/2, 0, a, 0, 0);
+                add_matrix(AUXM62, 0, 0, b, 0, 0, b, 0, N/2);
+                mul_matrix(M6, 0, 0, AUXM61, 0, 0, AUXM62, 0, 0);
+                break;
 
-	// calculul matricii M7
-    case 6:
-	sub_matrix(AUXM71, 0, 0, a, 0, N/2, a, N/2, N/2);
-	add_matrix(AUXM72, 0, 0, b, N/2, 0, b, N/2, N/2);
-	mul_matrix(M7, 0, 0, AUXM71, 0, 0, AUXM72, 0, 0);
-    break;
+            // calculul matricii M7
+            case 6:
+                sub_matrix(AUXM71, 0, 0, a, 0, N/2, a, N/2, N/2);
+                add_matrix(AUXM72, 0, 0, b, N/2, 0, b, N/2, N/2);
+                mul_matrix(M7, 0, 0, AUXM71, 0, 0, AUXM72, 0, 0);
+                break;
 
         }
     }
@@ -238,6 +238,7 @@ void *f(void *arg)
         // afișarea rezultatului
         print(c);
     }
+	pthread_exit(NULL);
 }
 
 int main(int argc, char *argv[])

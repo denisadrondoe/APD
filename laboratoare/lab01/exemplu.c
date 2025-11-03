@@ -28,6 +28,7 @@ void *f2(void *arg) {
         printf("Iteratia %d: ", i);
         printf("Hello World din thread-ul %ld!\n", id);
     }
+    pthread_exit(NULL);
 }
 
 

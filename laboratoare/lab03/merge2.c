@@ -112,57 +112,33 @@ void print()
 void *thread_function(void *arg)
 {
 	int thread_id = *(int *)arg;
-	int *aux;
-	int block_size = N / P;
-	//fiecare thread sorteaza o portiune din vector cu 
-	int start = thread_id * (N/P);
-	int end = (thread_id + 1) * (N/P);
-	if (thread_id == P - 1) {
-		end = N;
+
+	// implementati aici merge sort paralel
+    // merge sort clasic - trebuie paralelizat
+	int i, width, *aux;
+	for (width = 1; width < N; width = 2 * width) {
+        int pieces = N / (2 * width); //câte merge-uri există în runda asta
+        
+        // start si end are merge-uri revin acestui thread
+        int start = thread_id * pieces / P * 2 * width;
+        int end = (thread_id +1) * pieces / P * 2 * width;
+
+        if( end > N) {
+            end = N;
+        }
+
+		for (i = start; i < end; i = i + 2 * width) {
+			merge(v, i, i + width, i + 2 * width, vNew);
+		}
+        pthread_barrier_wait(&barrier); // asteapta dupa fiecare merge 
+
+        if(thread_id == 0) {
+        aux = v;
+		v = vNew;
+		vNew = aux;
+        }
+        pthread_barrier_wait(&barrier);
 	}
-// (end - start) = N / P numarul de elemente pe care un thread le sorteaza
-	// Sortare secvențială locală (fiecare thread își sortează porțiunea)
-    // Folosim merge sort recursiv sau iterativ 
-	// --- Faza 1: sortare locală (în interiorul fiecărei porțiuni)
-    for (int width = 1; width < (end - start); width *= 2) {
-        for (int i = start; i < end; i += 2 * width) {
-            int mid = i + width;
-            if (mid > end) mid = end;
-            int finish = i + 2 * width;
-            if (finish > end) finish = end;
-            if (i < finish) {
-                merge(v, i, mid, finish, vNew);
-			}
-        }
-        // sincronizare: toți termină nivelul curent
-        pthread_barrier_wait(&barrier);
-
-        // swap (toți thread-urile fac swap în același timp -> consistent)
-        aux = v; v = vNew; vNew = aux;
-
-        // asigurăm că toți folosesc același 'v' la următorul nivel
-        pthread_barrier_wait(&barrier);
-    }
-	
-	// --- Faza 2: merge global - combinăm blocuri de dimensiune block_size în blocuri mai mari
-    // fiecare pas combină blocuri de dimensiune 'size' în blocuri de dimensiune '2*size'
-	for (int size = block_size; size < N; size *= 2) {
-        // fiecare thread procesează merge-uri independente, pornind de la offset = thread_id * 2*size
-        // și sărind câte P * 2*size (distribuim operațiile de merge uniform)
-        long step = (long)2 * size;
-        for (long i = (long)thread_id * step; i < N; i += (long)P * step) {
-            int mid = (int)(i + size);
-            if (mid > N) mid = N;
-            int right = (int)(i + 2 * size);
-            if (right > N) right = N;
-            if ((int)i < right) {
-                merge(v, (int)i, mid, right, vNew);
-            }
-        }
-        pthread_barrier_wait(&barrier);
-        aux = v; v = vNew; vNew = aux;
-        pthread_barrier_wait(&barrier);
-    }
 
 	pthread_exit(NULL);
 }
@@ -173,9 +149,9 @@ int main(int argc, char *argv[])
 	init();
 
 	int i;
-	int *thread_id = malloc(sizeof(int) * P);
-    pthread_t *tid = malloc(sizeof(pthread_t) * P);
-	pthread_barrier_init(&barrier, NULL, P);
+	int thread_id[P];
+	pthread_t tid[P];
+    pthread_barrier_init(&barrier, NULL, P);
 
 	// se sorteaza vectorul etalon
 	for (i = 0; i < N; i++)
@@ -195,12 +171,10 @@ int main(int argc, char *argv[])
 
 	print();
 
-	free(thread_id);
-    free(tid);
-    free(v);
-    free(vQSort);
-    free(vNew);
-	pthread_barrier_destroy(&barrier);
+	free(v);
+	free(vQSort);
+	free(vNew);
+    pthread_barrier_destroy(&barrier);
 
 	return 0;
 }

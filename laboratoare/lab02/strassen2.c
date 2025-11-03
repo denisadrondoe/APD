@@ -167,29 +167,93 @@ void sub_matrix(int **C, int startCi, int startCj,  int **A, int startAi, int st
 // TODO: creati functii separate pentru calculul matricelor
 // in care sa puneti bucati din codul scris in main
 // warning: a nu se paraleliza in main!
+void *f1 ( void *arg)
+{
+    // calculul matricii M1
+	add_matrix(AUXM11, 0, 0, a, 0, 0, a, N/2, N/2);
+	add_matrix(AUXM12, 0, 0, b, 0, 0, b, N/2, N/2);
+	mul_matrix(M1, 0, 0, AUXM11, 0, 0, AUXM12, 0, 0);
+    pthread_exit(NULL);
+}
+void *f2(void *arg)
+{
+    // calculul matricii M2
+	add_matrix(AUXM21, 0,0, a, N/2, 0, a, N/2, N/2);
+	mul_matrix(M2, 0, 0, AUXM21, 0, 0, b, 0, 0);
+    pthread_exit(NULL);
+}
+void *f3(void *arg)
+{
+    // calculul matricii M3
+	sub_matrix(AUXM31, 0, 0, b, 0, N/2, b, N/2, N/2);
+	mul_matrix(M3, 0, 0, a, 0, 0, AUXM31, 0, 0);
+    pthread_exit(NULL);
+}
+void *f4(void *arg)
+{
+    // calculul matricii M4
+	sub_matrix(AUXM41, 0, 0, b, N/2, 0, b, 0, 0);
+	mul_matrix(M4, 0, 0, a, N/2, N/2, AUXM41, 0, 0);
+    pthread_exit(NULL);
+}
+void *f5(void *arg) {
+	// M5 = (A11 + A12) * B22
+	add_matrix(AUXM51, 0,0, a, 0, 0, a, 0, N/2);
+	mul_matrix(M5, 0, 0, AUXM51, 0, 0, b, N/2, N/2);
+	return NULL;
+}
+
+void *f6(void *arg) {
+	// M6 = (A21 - A11) * (B11 + B12)
+	sub_matrix(AUXM61, 0, 0, a, N/2, 0, a, 0, 0);
+	add_matrix(AUXM62, 0, 0, b, 0, 0, b, 0, N/2);
+	mul_matrix(M6, 0, 0, AUXM61, 0, 0, AUXM62, 0, 0);
+	return NULL;
+}
+
+void *f7(void *arg) {
+	// M7 = (A12 - A22) * (B21 + B22)
+	sub_matrix(AUXM71, 0, 0, a, 0, N/2, a, N/2, N/2);
+	add_matrix(AUXM72, 0, 0, b, N/2, 0, b, N/2, N/2);
+	mul_matrix(M7, 0, 0, AUXM71, 0, 0, AUXM72, 0, 0);
+	return NULL;
+}
 
 int main(int argc, char *argv[])
 {
 	get_args(argc, argv);
 	init();
-	
+    pthread_t t1, t2, t3, t4, t5, t6, t7; //fiecare va avea functia sa diferita 
 
-	// calculul matricii M1
-	add_matrix(AUXM11, 0, 0, a, 0, 0, a, N/2, N/2);
-	add_matrix(AUXM12, 0, 0, b, 0, 0, b, N/2, N/2);
-	mul_matrix(M1, 0, 0, AUXM11, 0, 0, AUXM12, 0, 0);
-
-	// calculul matricii M2
-	add_matrix(AUXM21, 0,0, a, N/2, 0, a, N/2, N/2);
-	mul_matrix(M2, 0, 0, AUXM21, 0, 0, b, 0, 0);
-
-	// calculul matricii M3
-	sub_matrix(AUXM31, 0, 0, b, 0, N/2, b, N/2, N/2);
-	mul_matrix(M3, 0, 0, a, 0, 0, AUXM31, 0, 0);
-
-	// calculul matricii M4
-	sub_matrix(AUXM41, 0, 0, b, N/2, 0, b, 0, 0);
-	mul_matrix(M4, 0, 0, a, N/2, N/2, AUXM41, 0, 0);
+    //pornim cele 7 threaduri
+    if(pthread_create(&t1, NULL, f1, NULL) != 0 ) {
+        perror("pthread_create 1");
+        exit(1);
+    }
+    if(pthread_create(&t2, NULL, f2, NULL) != 0 ) {
+        perror("pthread_create 1");
+        exit(1);
+    }
+    if(pthread_create(&t3, NULL, f3, NULL) != 0 ) {
+        perror("pthread_create 1");
+        exit(1);
+    }
+    if(pthread_create(&t4, NULL, f4, NULL) != 0 ) {
+        perror("pthread_create 1");
+        exit(1);
+    }
+    if(pthread_create(&t5, NULL, f5, NULL) != 0 ) {
+        perror("pthread_create 1");
+        exit(1);
+    }
+    if(pthread_create(&t6, NULL, f6, NULL) != 0 ) {
+        perror("pthread_create 1");
+        exit(1);
+    }
+    if(pthread_create(&t7, NULL, f7, NULL) != 0 ) {
+        perror("pthread_create 1");
+        exit(1);
+    }
 
 	// calculul matricii M5
 	add_matrix(AUXM51, 0,0, a, 0, 0, a, 0, N/2);

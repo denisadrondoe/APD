@@ -20,7 +20,7 @@ void *thread_function(void *arg)
 	}
 	int i, j, k;
 
-	for (i = start; i < N; i++) {
+	for (i = 0; i < N; i++) {
 		for (j = start; j < end; j++) {
 			c[i][j] = 0; //resetam elementul
 			for (k = 0; k < N; k++) {
