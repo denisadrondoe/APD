@@ -20,7 +20,13 @@ int main (int argc, char *argv[])
     if (rank == ROOT) {
 
         // The ROOT process receives an element from any source.
-        // Prints the element and the source. HINT: MPI_Status.
+        MPI_Status status;
+        for(int i = 0; i<ROOT; i++) {
+            MPI_Recv(&value, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+            // Prints the element and the source. HINT: MPI_Status.
+            printf("Process [%d] received %d from process [%d].\n", rank, value, status.MPI_SOURCE);
+            fflush(stdout);
+        }
 
     } else {
 
@@ -29,8 +35,10 @@ int main (int argc, char *argv[])
         value = rand() % (rank * 50 + 1);
 
         printf("Process [%d] send %d.\n", rank, value);
+        fflush(stdout);
 
         // Sends the value to the ROOT process.
+        MPI_Send(&value, 1, MPI_INT, ROOT, 0, MPI_COMM_WORLD);
 
     }
 
