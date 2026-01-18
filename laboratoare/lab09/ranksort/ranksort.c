@@ -53,10 +53,14 @@ int main(int argc, char * argv[]) {
 
     if (rank == MASTER) {
         // generate random vector
+		srandom(42);
+		for(i = 0; i < N; i++)
+			v[i] = random() % 200;
     }
 
     // send the vector to all processes
-
+	//trimite tot vectorul celorlalte procese 
+    MPI_Bcast(v, N, MPI_INT, MASTER, MPI_COMM_WORLD);
 
 	if(rank == 0) {
 		// DO NOT MODIFY
@@ -68,16 +72,56 @@ int main(int argc, char * argv[]) {
 			vQSort[i] = v[i];
 		qsort(vQSort, N, sizeof(int), cmp);
 
-		// sort the vector v
-		
-        // recv the new pozitions
+		// calculeaza bucata de rank sort pentru bucata lui din vector 
+		int start = 0;
+		int end = N / nProcesses;
 
+		// calculează pozițiile pentru bucata lui
+		for (i = start; i < end; i++) {
+			for (j = 0; j < N; j++) {
+				if (v[j] < v[i] || (v[j] == v[i] && j < i)) {
+					pos[i]++;
+				}
+			}
+		}
+
+        // primeste noile pozitii calculate de fiecare proces
+		for (int p = 1; p < nProcesses; p++) {
+		int start = p * (N / nProcesses);
+		int end = (p + 1) * (N / nProcesses);
+
+		MPI_Recv(&pos[start], end - start, MPI_INT,
+				p, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		}
+
+		//aranjeaza elementele conform pozitiilor primite
+		int temp[N];
+		for(i = 0; i < N; i++) {
+			temp[pos[i]] = v[i];
+		}
+
+		for(i = 0; i < N; i++) {
+			v[i] = temp[i];
+		}
+		// DO NOT MODIFY
 		displayVector(v);
 		compareVectors(v, vQSort);
 	} else {
 		
         // compute the positions
-        // send the new positions to process MASTER
+		int start = rank * (N / nProcesses);
+		int end = (rank + 1) * (N / nProcesses);
+
+		// fiecare proces este responsabil pentru calcularea unei anumite parti din vector 
+		for (i = start; i < end; i++) {
+			for (j = 0; j < N; j++) {
+				if (v[j] < v[i] || (v[j] == v[i] && j < i)) {
+					pos[i]++;
+				}
+			}
+		}
+        // toate procesele trimit procelului master noile pozitii calculate 
+		MPI_Send(&pos[start], end - start, MPI_INT, MASTER, 0, MPI_COMM_WORLD);
 	}
 
 	MPI_Finalize();

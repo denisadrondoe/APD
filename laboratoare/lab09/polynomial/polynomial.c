@@ -14,7 +14,7 @@ int main(int argc, char * argv[]) {
 	MPI_Comm_size(MPI_COMM_WORLD, &nProcesses);
 	printf("Hello from %i/%i\n", rank, nProcesses);
 
-	if (rank == MASTER) { // This code is run by a single process
+	if (rank == MASTER) { //preocesul MASTER citeste coeficientii din fisier 
 		int polynomialSize, n;
 		int x = 5; // valoarea cu care se calculeaza polinomul - f(5)
 
@@ -40,15 +40,21 @@ int main(int argc, char * argv[]) {
 				Se trimit coeficientii pentru x^1, x^2 etc. proceselor 1, 2 etc.
 				Procesul 0 se ocupa de x^0 si are valoarea coeficientului lui x^0
 			*/
+			if (i > 0) { 
+				printf("Sending %f to process %d\n", a[i], i);
+				MPI_Send(&a[i], 1, MPI_FLOAT, i, 0, MPI_COMM_WORLD); //trimite coeficientul a[i] procesului i 
+			}
 		}
 
 		fclose(polFunctionFile);
 
-		// Se trimit valorile x si suma partiala (in acest caz valoarea coeficientului lui x^0)
+		//PORNESTE PIPELINE UL 
+		// Se trimite valoarea  x = 5 si suma partiala (in acest caz valoarea coeficientului lui x^0)
+		MPI_Send(&x, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD); //porneste pipeline trimitand x catre procesul 1
+		MPI_Send(&a[0], 1, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD); //trimite suma partiala SUM = a[0] catre procesul 1
 	} else {
 		float val, sum;
 		int x;
-
 		/*
 			se primesc: 
 			- coeficientul corespunzator procesului (exemplu procesul 1 primeste coeficientul lui x^1)
@@ -58,10 +64,20 @@ int main(int argc, char * argv[]) {
 			si c fiind coeficientul lui x^r, si se aduna la suma
 		*/
 
+		MPI_Recv(&val, 1, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, NULL); //primeste valoarea coeficientului x^i; val = a[i]
+		printf("Process %d received value %f\n", rank, val);
+
+		MPI_Recv(&x, 1, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, NULL); //primeste valoarea x = 5
+		MPI_Recv(&sum, 1, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD, NULL); //primeste suma partiala calculata pana acum
+		printf("Received x = %d and sum = %f\n", x, sum);
+		sum += val * pow(x, rank); //calculeaza termenul propriu si il aduna la suma
+
 		if (rank == nProcesses - 1) {
 			printf("Polynom value is %f\n", sum);
 		} else {
-			// se trimit x si suma partiala catre urmatorul proces
+			// se trimit mai departe x si suma partiala catre urmatorul proces
+			MPI_Send(&x, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
+			MPI_Send(&sum, 1, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD);
 		}
 	}
 

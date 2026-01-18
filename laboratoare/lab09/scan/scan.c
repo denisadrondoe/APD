@@ -11,13 +11,21 @@ int main (int argc, char *argv[])
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &procs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
+    //Implementați operația de scan, unde fiecare proces are o valoare proprie, 
+    // prin care avem o colecție de valori (a nu se folosi MPI_Scan)
     int value = rank;
 
     for (int i = 1; i < procs; i *= 2) {
         // TODO
+        if(rank + i < procs) {
+            MPI_Send(&value, 1, MPI_INT, rank + i, i, MPI_COMM_WORLD);
+        }
+        if(rank - i >= 0) {
+            int recv_value;
+            MPI_Recv(&recv_value, 1, MPI_INT, rank - i, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            value += recv_value;    
     }
-
+    }
     printf("Process [%d] has result = %d\n", rank, value);
 
     MPI_Finalize();
